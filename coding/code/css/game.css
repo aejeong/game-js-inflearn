@@ -1,1 +1,25 @@
-/* 코드를 작성하세요 */
+.game_app {position: relative; height: 100vh;}
+.game_app .game {position: absolute; left: 0; bottom: 0; z-index: 10; width: 100%; height: 100%; background-color: #000;}
+
+
+@keyframes defult_moving {
+  from {background-position-x: 0px;}
+  /* x 마이너스 축으로 hero 백그라운드 사이즈 만큼 이동 */
+  to {background-position-x: -3770px;} 
+}
+.hero_box { width: 377px; height: 458px; border:1px solid red}
+.hero_box .hero{ height: 458px; background-image: url(../../../lib/images/ninja_idle.png); background-size:  3770px 458px;
+  /* 
+     hero_idle 파일에서 보여줄 캐릭터의 동작이 10개
+     -3770px / 10 동작으로 나누었을때  -377px이 1 step
+  */
+ animation: defult_moving 0.7s infinite steps(10);
+}
+
+.hero_box .hero.run{
+  background-image: url(../../../lib/images/ninja_run.png);
+}
+
+.hero_box .hero.attack{
+  background-image: url(../../../lib/images/ninja_attack.png);
+}
