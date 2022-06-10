@@ -7,7 +7,7 @@
   /* x 마이너스 축으로 hero 백그라운드 사이즈 만큼 이동 */
   to {background-position-x: -3770px;} 
 }
-.hero_box { width: 377px; height: 458px; border:1px solid red}
+.hero_box {position: fixed; left:0; bottom:0; z-index: 100; width: 377px; height: 458px;}
 .hero_box .hero{ height: 458px; background-image: url(../../../lib/images/ninja_idle.png); background-size:  3770px 458px;
   /* 
      hero_idle 파일에서 보여줄 캐릭터의 동작이 10개
