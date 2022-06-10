@@ -16,10 +16,6 @@
  animation: defult_moving 0.7s infinite steps(10);
 }
 
-.hero_box .hero.run{
-  background-image: url(../../../lib/images/ninja_run.png);
-}
-
-.hero_box .hero.attack{
-  background-image: url(../../../lib/images/ninja_attack.png);
-}
+.hero_box .hero.run{ background-image: url(../../../lib/images/ninja_run.png);}
+.hero_box .hero.flip{ transform:  rotateY(180deg);}
+.hero_box .hero.attack{background-image: url(../../../lib/images/ninja_attack.png);}
