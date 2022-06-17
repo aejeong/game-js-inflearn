@@ -13,9 +13,21 @@
      hero_idle 파일에서 보여줄 캐릭터의 동작이 10개
      -3770px / 10 동작으로 나누었을때  -377px이 1 step
   */
- animation: defult_moving 0.7s infinite steps(10);
+ animation: defult_moving 0.7s 1 steps(10);
 }
 
 .hero_box .hero.run{ background-image: url(../../../lib/images/ninja_run.png);}
 .hero_box .hero.flip{ transform:  rotateY(180deg);}
 .hero_box .hero.attack{background-image: url(../../../lib/images/ninja_attack.png);}
+
+.hero_bullet {
+  position: absolute;
+  left:0;
+  bottom:0;
+  z-index: 90;
+  width: 160px;
+  height: 32px;
+  background-image: url('../../../lib/images/hero_bullet.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+}

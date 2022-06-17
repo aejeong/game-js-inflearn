@@ -9,8 +9,22 @@ const key = {
   }
 }
 
+const bulletComProp = {
+  launch: false,
+  arr: []
+}
+
+const gameProp = {
+  screenWidth : window.innerWidth,
+  screenHeight : window.innerHeight,
+}
+
 const renderGame = () => {
   hero.keyMotion();
+
+  bulletComProp.arr.forEach((arr,i) =>{
+    arr.moveBullet();
+  });
   // hero keyMotion에 대한 애니메이션 frame 
   window.requestAnimationFrame(renderGame);
 }
