@@ -9,9 +9,17 @@ const key = {
   }
 }
 
+const allMonsterComProp = {
+  arr: []
+}
+
 const bulletComProp = {
   launch: false,
   arr: []
+}
+
+const gameBackground = {
+  gameBox: document.querySelector('.game')
 }
 
 const gameProp = {
@@ -21,12 +29,24 @@ const gameProp = {
 
 const renderGame = () => {
   hero.keyMotion();
+  setGameBackGround();
 
   bulletComProp.arr.forEach((arr,i) =>{
     arr.moveBullet();
   });
+  allMonsterComProp.arr.forEach((arr, i) =>{
+    arr.moveMonster();
+  })
   // hero keyMotion에 대한 애니메이션 frame 
   window.requestAnimationFrame(renderGame);
+}
+
+const setGameBackGround = () => {
+  let parallaxValue = Math.min(0, (hero.moveX - gameProp.screenWidth / 3) * -1)
+  // 히어로가 움직이는 방향의 반대 방향으로 움직이게 하기위해 -1 곱함
+
+  gameBackground.gameBox.style.transform = `translateX(${parallaxValue}px)`;
+
 }
 
 // window event 관련 함수 작성란
@@ -57,6 +77,7 @@ const loadImg = () => {
 let hero;
 const init = () => {
   hero = new Hero('.hero'); // hero 인스턴스 생성 할당
+  allMonsterComProp.arr[0] = new Monster(500, 9000);
   loadImg();
   windowEvent(); // 윈도우 이벤트
   renderGame();
@@ -66,3 +87,4 @@ const init = () => {
 window.onload = () => {
   init();
 }
+
