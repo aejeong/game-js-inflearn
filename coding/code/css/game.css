@@ -5,10 +5,14 @@
 @keyframes defult_moving {
   from {background-position-x: 0px;}
   /* x 마이너스 축으로 hero 백그라운드 사이즈 만큼 이동 */
-  to {background-position-x: -3770px;} 
+  to {background-position-x: -1498px;} 
 }
-.hero_box {position: fixed; left:0; bottom:0; z-index: 100; width: 377px; height: 458px;}
-.hero_box .hero{ height: 458px; background-image: url(../../../lib/images/ninja_idle.png); background-size:  3770px 458px;
+.hero_box {position: fixed; left:0; bottom:0; z-index: 100; width: 150px; height: 182px;}
+/*  STEP2 
+  hero 사이즈가 커서 높이 182 기준으로 변경
+  182로 변경시 총 넓이 1498px / 10 한 값이 넓이
+*/
+.hero_box .hero{ height: 100%; background-image: url(../../../lib/images/ninja_idle.png); background-size:  1498px 182px;
   /* 
      hero_idle 파일에서 보여줄 캐릭터의 동작이 10개
      -3770px / 10 동작으로 나누었을때  -377px이 1 step
@@ -25,8 +29,8 @@
   left:0;
   bottom:0;
   z-index: 90;
-  width: 160px;
-  height: 32px;
+  width: 120px;
+  height: 24px;
   background-image: url('../../../lib/images/hero_bullet.png');
   background-size: cover;
   background-repeat: no-repeat;
