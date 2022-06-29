@@ -5,6 +5,9 @@ class Hero {
     this.speed = 16;
     this.direction = 'right';
     this.attackDamage = 1000;
+    this.hpProgress = 0;
+    this.hpValue = 10000;
+    this.defaultHpValue = this.hpValue;
   }
 
   keyMotion(){
@@ -57,6 +60,25 @@ class Hero {
       height: this.el.offsetHeight
     }
   }
+  updateHp(monsterDamage){
+    this.hpValue = Math.max(0,this.hpValue - monsterDamage);
+    this.hpProgress =  this.hpValue / this.defaultHpValue * 100;
+    const heroHpBox = document.querySelector('.state_box .hp span');
+    heroHpBox.style.width = this.hpProgress + '%';
+    this.crash();
+    if(this.hpValue === 0){
+      this.dead();
+    }
+  }
+
+  crash(){
+    this.el.classList.add('crash');
+    setTimeout(()=>{this.el.classList.remove('crash')},400);
+  }
+  dead(){
+    hero.el.classList.add('dead');
+    endGame();
+  }
 }
 
 class Bullet{
@@ -103,13 +125,13 @@ class Bullet{
   }
 
   crashBullet(){
-
     for(let j = 0; j < allMonsterComProp.arr.length; j++){
       if(this.position().left > allMonsterComProp.arr[j].position().left && this.position().right < allMonsterComProp.arr[j].position().right){
         for(let i=0; i <bulletComProp.arr.length; i++){
           if(bulletComProp.arr[i] === this){
             bulletComProp.arr.splice(i,1);
           this.el.remove();
+          this.damageView(allMonsterComProp.arr[j]);
           allMonsterComProp.arr[j].updateHp(j);
           }
         }
@@ -124,6 +146,24 @@ class Bullet{
         }
       }
     }
+  }
+
+  damageView(monster){
+    this.parentNode = document.querySelector('.game_app');
+    this.textDamageNode = document.createElement('div');
+    this.textDamageNode.className = 'text_damage';
+    this.textDamage = document.createTextNode(hero.attackDamage);
+    this.textDamageNode.appendChild(this.textDamage);
+    this.parentNode.appendChild(this.textDamageNode);
+    
+    let textPosition = Math.random() * -100;
+    let damageX = monster.position().left + textPosition;
+    let damageY = monster.position().top;
+
+    this.textDamageNode.style.transform = `translate(${damageX}px,-${damageY}px)`;
+    setTimeout(()=>{
+      this.textDamageNode.remove()
+    },500)
   }
 }
 
@@ -142,7 +182,8 @@ class Monster{
     this.progress = 0;
     this.positionX = positionX;
     this.moveX = 0;
-    this.speed = 10;
+    this.speed = 5;
+    this.crashDamage = 100;
 
     this.init();
   }
@@ -180,7 +221,6 @@ class Monster{
     allMonsterComProp.arr.splice(index, 1);
   }
   moveMonster(){
-
     if(this.moveX + this.positionX + this.el.offsetWidth + hero.position().left - hero.moveX <= 0){
       this.moveX = hero.moveX - this.positionX + gameProp.screenWidth - hero.position().left;
     }else{
@@ -189,5 +229,13 @@ class Monster{
     this.moveX -= this.speed;
 
     this.el.style.transform = `translateX(${this.moveX}px)`;
+    this.crash();
+  }
+  crash(){
+    let rightDiff = 30;
+    let leftDiff = 90;
+    if(hero.position().right - rightDiff > this.position().left & hero.position().left - leftDiff < this.position().right){
+      hero.updateHp(this.crashDamage);
+    }
   }
 }

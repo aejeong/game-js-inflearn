@@ -7,6 +7,12 @@
   /* x 마이너스 축으로 hero 백그라운드 사이즈 만큼 이동 */
   to {background-position-x: -1498px;} 
 }
+
+@keyframes hero_crash {
+  from{ background-position-x: 0px;}
+  to{background-position-x: -299px;}
+}
+
 .hero_box {position: fixed; left:0; bottom:0; z-index: 100; width: 150px; height: 182px; will-change: transform;}
 /*  STEP2 
   hero 사이즈가 커서 높이 182 기준으로 변경
@@ -23,7 +29,8 @@
 .hero_box .hero.run, .hero_box .hero.run.attack{ background-image: url(../../../lib/images/ninja_run.png);}
 .hero_box .hero.flip{ transform:  rotateY(180deg);}
 .hero_box .hero.attack{background-image: url(../../../lib/images/ninja_attack.png);}
-
+.hero_box .hero.crash{background-image: url(../../../lib/images/ninja_crash.png); background-size: 299px 182px; animation: hero_crash 0.4s 1 steps(2);}
+.hero_box .hero.dead{ background-image: url(../../../lib/images/ninja_dead.png); background-size: 150px 182px; animation: none; transform: rotate(100deg);}
 .hero_bullet {
   position: absolute;
   left:0;
@@ -63,3 +70,25 @@ animation: monster_moving 1s infinite steps(8);
 .game_info .hero_state .state_box .hp{width: 100%; height: 10px; border: 1px solid #000;}
 
 .game_info .hero_state .state_box .hp span{display: block;width: 100%;height: 100%;background-color: red;transition: width .3s linear;}
+
+.game_over{display: none; position: fixed; left:0; top:0; z-index: 200; width: 100%; height: 100%; background-color: rgba(0,0,0,.5);}
+.game_over.active{display: block;}
+.game_over p {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 150px;
+}
+
+@keyframes textDamage {
+  0%{opacity: 0; bottom:0}
+  70%{opacity: 1; bottom:50px}
+ 100%{opacity: 0; bottom:90px}
+}
+
+.text_damage{position: absolute; left:0; bottom: 0; z-index: 200; 
+  font-family: 'roboto'; font-size: 110px; background: linear-gradient(to bottom, rgba(196,41,30,1) 0%,rgba(230,89,191,1) 100%); -webkit-text-stroke: 5px rgba(255,255,255,.7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: textDamage .5s ease-out both;
+}

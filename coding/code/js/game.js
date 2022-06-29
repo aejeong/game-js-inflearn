@@ -25,6 +25,7 @@ const gameBackground = {
 const gameProp = {
   screenWidth : window.innerWidth,
   screenHeight : window.innerHeight,
+  gameOver : false
 }
 
 const renderGame = () => {
@@ -41,6 +42,13 @@ const renderGame = () => {
   window.requestAnimationFrame(renderGame);
 }
 
+const endGame = () =>{
+  gameProp.gameOver = true;
+  key.keyDown.left = false;
+  key.keyDown.right = false;
+  document.querySelector('.game_over').classList.add('active');
+}
+
 const setGameBackGround = () => {
   let parallaxValue = Math.min(0, (hero.moveX - gameProp.screenWidth / 3) * -1)
   // 히어로가 움직이는 방향의 반대 방향으로 움직이게 하기위해 -1 곱함
@@ -52,10 +60,10 @@ const setGameBackGround = () => {
 // window event 관련 함수 작성란
 const windowEvent = () => {
  window.addEventListener('keydown', e => {
-  key.keyDown[key.keyValue[e.which]] = true;
+ if(!gameProp.gameOver) key.keyDown[key.keyValue[e.which]] = true;
  });
  window.addEventListener('keyup', e => {
-  key.keyDown[key.keyValue[e.which]] = false;
+  if(!gameProp.gameOver)  key.keyDown[key.keyValue[e.which]] = false;
 })
  window.addEventListener('resize', e=> {
   gameProp.screenWidth = window.innerWidth;
