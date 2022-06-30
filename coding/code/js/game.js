@@ -22,6 +22,25 @@ const gameBackground = {
   gameBox: document.querySelector('.game')
 }
 
+const stageInfo = {
+  stage: [],
+  totalScore: 0,
+  monster: [
+    {
+    defaultMon: greenMon,
+    bossMon: greenMonBoss
+   },
+   {
+    defaultMon: yellowMon,
+    bossMon: yellowMonBoss
+   },
+   {
+    defaultMon: pinkMon,
+    bossMon: pinkMonBoss
+   },
+]
+}
+
 const gameProp = {
   screenWidth : window.innerWidth,
   screenHeight : window.innerHeight,
@@ -38,6 +57,7 @@ const renderGame = () => {
   allMonsterComProp.arr.forEach((arr, i) =>{
     arr.moveMonster();
   })
+  stageInfo.stage.clearCheck();
   // hero keyMotion에 대한 애니메이션 frame 
   window.requestAnimationFrame(renderGame);
 }
@@ -85,7 +105,9 @@ const loadImg = () => {
 let hero;
 const init = () => {
   hero = new Hero('.hero'); // hero 인스턴스 생성 할당
+  stageInfo.stage = new Stage();
   allMonsterComProp.arr[0] = new Monster(500, 9000);
+
   loadImg();
   windowEvent(); // 윈도우 이벤트
   renderGame();

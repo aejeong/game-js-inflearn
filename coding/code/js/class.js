@@ -1,13 +1,66 @@
+class Stage {
+  constructor(){
+    this.level = 1;
+    this.isStart = false;
+    this.stageStart();
+  }
+
+  stageStart(){
+    setTimeout(()=>{
+      this.isStart = true;
+
+      this.stageGuide('START LEVEL'+ this.level);
+      this.callMonster();
+    },2000)
+  }
+  stageGuide(text){
+    this.parentNode = document.querySelector('.game_app');
+    this.textBox = document.createElement('div');
+    this.textBox.className = 'stage_box';
+    this.textNode = document.createTextNode(text);
+    this.textBox.appendChild(this.textNode);
+    this.parentNode.appendChild(this.textBox);
+
+    setTimeout(()=> this.textBox.remove(), 1500)
+  }
+
+  callMonster(){
+  for(let i=0; i <= 10; i++){
+    if(i === 10){
+    allMonsterComProp.arr[i] = new Monster(stageInfo.monster[this.level].bossMon, hero.moveX + gameProp.screenWidth + 600 * i);
+    }else{
+      allMonsterComProp.arr[i] = new Monster(stageInfo.monster[this.level].defaultMon, hero.moveX + gameProp.screenWidth + 700 * i);
+    }
+  }
+  }
+
+  clearCheck(){
+    if(allMonsterComProp.arr.length === 0 && this.isStart){
+     this.isStart = false;
+     this.level++;
+
+     if(this.level < stageInfo.monster.length){
+      this.stageGuide('CLEAR!!'); 
+      this.stageStart();
+      hero.heroUpgrade();
+     }else{
+      this.stageGuide('ALL CLEAR!!!');
+     }
+    }
+  }
+}
+
 class Hero {
   constructor(el) {
     this.el = document.querySelector(el);
     this.moveX = 0;
     this.speed = 16;
     this.direction = 'right';
-    this.attackDamage = 1000;
+    this.attackDamage = 10000;
     this.hpProgress = 0;
     this.hpValue = 10000;
     this.defaultHpValue = this.hpValue;
+    this.realDamage = 0;
   }
 
   keyMotion(){
@@ -79,6 +132,13 @@ class Hero {
     hero.el.classList.add('dead');
     endGame();
   }
+  hitDamage(){
+   this.realDamage = this.attackDamage - Math.round(Math.random() * this.attackDamage * 0.1);
+  }
+  heroUpgrade(){
+    this.speed += 1.3;
+    this.attackDamage += 15000;
+  }
 }
 
 class Bullet{
@@ -129,6 +189,7 @@ class Bullet{
       if(this.position().left > allMonsterComProp.arr[j].position().left && this.position().right < allMonsterComProp.arr[j].position().right){
         for(let i=0; i <bulletComProp.arr.length; i++){
           if(bulletComProp.arr[i] === this){
+            hero.hitDamage();
             bulletComProp.arr.splice(i,1);
           this.el.remove();
           this.damageView(allMonsterComProp.arr[j]);
@@ -152,7 +213,7 @@ class Bullet{
     this.parentNode = document.querySelector('.game_app');
     this.textDamageNode = document.createElement('div');
     this.textDamageNode.className = 'text_damage';
-    this.textDamage = document.createTextNode(hero.attackDamage);
+    this.textDamage = document.createTextNode(hero.realDamage);
     this.textDamageNode.appendChild(this.textDamage);
     this.parentNode.appendChild(this.textDamageNode);
     
@@ -168,22 +229,23 @@ class Bullet{
 }
 
 class Monster{
-  constructor(positionX, hp){
+  constructor(property, positionX){
     this.parentNode = document.querySelector('.game');
     this.el = document.createElement('div');
-    this.el.className = 'monster_box';
+    this.el.className = 'monster_box ' + property.name;
     this.elChildren =  document.createElement('div');
     this.elChildren.className= 'monster';
     this.hpNode = document.createElement('div');
     this.hpNode.className = 'hp';
-    this.hpValue = hp;
-    this.defaultHpValue = hp;
+    this.hpValue = property.hpValue;
+    this.defaultHpValue = property.hpValue;
     this.hpInner = document.createElement('span');
     this.progress = 0;
     this.positionX = positionX;
     this.moveX = 0;
-    this.speed = 5;
-    this.crashDamage = 100;
+    this.speed = property.speed;
+    this.crashDamage = property.crashDamage;
+    this.score = property.score;
 
     this.init();
   }
@@ -205,7 +267,7 @@ class Monster{
   }
 
   updateHp(index){
-    this.hpValue = Math.max(0,this.hpValue - hero.attackDamage);
+    this.hpValue = Math.max(0,this.hpValue - hero.realDamage);
     this.progress = this.hpValue / this.defaultHpValue * 100;
 
     this.el.children[0].children[0].style.width = this.progress + '%';
@@ -219,6 +281,7 @@ class Monster{
     this.el.classList.add('remove');
     setTimeout(()=> this.el.remove, 200);
     allMonsterComProp.arr.splice(index, 1);
+    this.setScore();
   }
   moveMonster(){
     if(this.moveX + this.positionX + this.el.offsetWidth + hero.position().left - hero.moveX <= 0){
@@ -237,5 +300,9 @@ class Monster{
     if(hero.position().right - rightDiff > this.position().left & hero.position().left - leftDiff < this.position().right){
       hero.updateHp(this.crashDamage);
     }
+  }
+  setScore(){
+    stageInfo.totalScore += this.score;
+    document.querySelector('.score_box').innerText = stageInfo.totalScore;
   }
 }
