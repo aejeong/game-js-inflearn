@@ -2,9 +2,11 @@
 const key = {
   keyDown : {},
   keyValue : {
+    13: 'enter',
     37: 'left',
     38: 'up',
     39: 'right',
+    67: 'slide',
     88: 'attack'
   }
 }
@@ -27,18 +29,16 @@ const stageInfo = {
   totalScore: 0,
   monster: [
     {
-    defaultMon: greenMon,
-    bossMon: greenMonBoss
+    defaultMon: greenMon,  bossMon: greenMonBoss
+    },
+   {
+    defaultMon: yellowMon, bossMon: yellowMonBoss
    },
    {
-    defaultMon: yellowMon,
-    bossMon: yellowMonBoss
+    defaultMon: pinkMon, bossMon: pinkMonBoss
    },
-   {
-    defaultMon: pinkMon,
-    bossMon: pinkMonBoss
-   },
-]
+],
+callPosition: [1000, 2000, 3000]
 }
 
 const gameProp = {
@@ -50,6 +50,8 @@ const gameProp = {
 const renderGame = () => {
   hero.keyMotion();
   setGameBackGround();
+
+  npcOne.crash();
 
   bulletComProp.arr.forEach((arr,i) =>{
     arr.moveBullet();
@@ -81,6 +83,9 @@ const setGameBackGround = () => {
 const windowEvent = () => {
  window.addEventListener('keydown', e => {
  if(!gameProp.gameOver) key.keyDown[key.keyValue[e.which]] = true;
+ if(key.keyDown['enter']){
+  npcOne.talk();
+}
  });
  window.addEventListener('keyup', e => {
   if(!gameProp.gameOver)  key.keyDown[key.keyValue[e.which]] = false;
@@ -103,10 +108,12 @@ const loadImg = () => {
 }
 
 let hero;
+let npcOne;
 const init = () => {
   hero = new Hero('.hero'); // hero 인스턴스 생성 할당
   stageInfo.stage = new Stage();
-  allMonsterComProp.arr[0] = new Monster(500, 9000);
+  npcOne = new Npc();
+  // allMonsterComProp.arr[0] = new Monster(500, 9000);
 
   loadImg();
   windowEvent(); // 윈도우 이벤트

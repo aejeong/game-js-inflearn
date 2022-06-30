@@ -1,18 +1,106 @@
+class Npc{
+  constructor(){
+    this.parentNode = document.querySelector('.game');
+    this.el = document.createElement('div');
+    this.el.className = 'npc_box';
+    this.npcCrash = false;
+    this.talkOn = false;
+    this.modal = document.querySelector('.quest_modal');
+    this.questStart = false;
+    this.questEnd = false;
+
+    this.init();
+  }
+
+  init(){
+    let npcTalk = '';
+    npcTalk += '<div class="talk_box"><p>큰일이야..<br> 사람들이 좀비로 변하고 있어..</p><span>대화하기</span></div>'
+    npcTalk += '<div class="npc"></div>'
+
+    this.el.innerHTML = npcTalk;
+    this.parentNode.appendChild(this.el);
+
+  }
+
+  position(){
+    return{
+      left: this.el.getBoundingClientRect().left,
+      right: this.el.getBoundingClientRect().right,
+      top: gameProp.screenHeight - this.el.getBoundingClientRect().top,
+      bottom: gameProp.screenHeight - this.el.getBoundingClientRect().top - this.el.getBoundingClientRect().height
+    }
+  }
+  crash(){
+    if(hero.position().right > this.position().left && hero.position().left < this.position().right){
+      this.npcCrash = true;
+    }else{
+      this.npcCrash = false;
+    }
+  }
+
+  talk(){
+    if(!this.talkOn && this.npcCrash){
+      this.talkOn = true;
+      this.modal.classList.add('active');
+      this.quest();
+    }else if(this.talkOn){
+      this.talkOn = false;
+      this.modal.classList.remove('active');
+
+    }
+  }
+
+  quest(){
+    const message = {
+      start: '마을에 몬스터가 출몰해 주민들을 좀비로 만들고 있어.. 몬스터를 사냥해 주민을 구하고 <span>레벨을 5이상</span>으로 만들어 힘을 증명한다면 좀비왕을 물리칠수 있도록 내 힘을 빌려줄게 !!',
+      ing: "Ooops, You haven't reached at the level yet",
+      suc: "You've achieved the goal ! I'll give you power",
+      end: "Thank you, Good luck!"
+    }
+
+    let messageState = '';
+
+    if(!this.questStart){
+      messageState = message.start;
+      this.questStart = true;
+    }else if(this.questStart && !this.questEnd && hero.level < 5){
+      messageState = message.ing;
+    }else if(this.questStart && !this.questEnd && hero.level >= 5 ) {
+      messageState = message.suc;
+      this.questEnd = true;
+      hero.heroUpgrade(50000);
+    }else if(this.questStart && this.questEnd){
+      messageState = message.end;
+    }
+
+    let text = '';
+    text += '<figure class="npc_img">'
+    text += '<img src="../../lib/images/npc.png" alt="">'
+    text += '</figure>'
+    text += '<p>'
+    text +=  messageState;
+    text += '</p>';
+  
+    const modalInner = document.querySelector('.quest_modal .inner_box .quest_talk');
+    modalInner.innerHTML = text;
+  }
+}
+
 class Stage {
   constructor(){
     this.level = 1;
     this.isStart = false;
-    this.stageStart();
+    // this.stageStart();
   }
 
-  stageStart(){
+/*  stageStart(){
     setTimeout(()=>{
       this.isStart = true;
 
       this.stageGuide('START LEVEL'+ this.level);
       this.callMonster();
     },2000)
-  }
+  }*/
   stageGuide(text){
     this.parentNode = document.querySelector('.game_app');
     this.textBox = document.createElement('div');
@@ -35,7 +123,19 @@ class Stage {
   }
 
   clearCheck(){
-    if(allMonsterComProp.arr.length === 0 && this.isStart){
+    stageInfo.callPosition.forEach(arr => {
+      if(hero.moveX >= arr && allMonsterComProp.arr.length === 0){
+        this.stageGuide('Monster is coming soon')
+        stageInfo.callPosition.shift();
+
+        setTimeout(()=>{
+          this.callMonster();
+          this.level++;
+        })
+
+      }
+    })
+  /*  if(allMonsterComProp.arr.length === 0 && this.isStart){
      this.isStart = false;
      this.level++;
 
@@ -46,7 +146,7 @@ class Stage {
      }else{
       this.stageGuide('ALL CLEAR!!!');
      }
-    }
+    } */
   }
 }
 
@@ -56,11 +156,19 @@ class Hero {
     this.moveX = 0;
     this.speed = 16;
     this.direction = 'right';
-    this.attackDamage = 10000;
+    this.attackDamage = 20000;
     this.hpProgress = 0;
-    this.hpValue = 10000;
+    this.hpValue = 90000;
     this.defaultHpValue = this.hpValue;
     this.realDamage = 0;
+    this.slideSpeed = 14;
+    this.slideTime = 0;
+    this.slideMaxTime = 30;
+    this.slideDown = false;
+    this.level = 5;
+    this.exp = 0;
+    this.maxExp = 3000;
+    this.expProgress = 0;
   }
 
   keyMotion(){
@@ -84,7 +192,31 @@ class Hero {
 
         bulletComProp.launch = true;
       }
-      
+    }
+
+    if(key.keyDown['slide']){
+      if(!this.slideDown){
+        this.el.classList.add('slide');
+        if(this.direction === 'right'){
+          this.moveX = this.moveX + this.slideSpeed;
+        }else{
+          this.moveX = this.moveX - this.slideSpeed;
+        }
+  
+        if(this.slideTime > this.slideMaxTime){
+          this.el.classList.remove('slide');
+          this.slideDown = true;
+        }
+  
+        this.slideTime += 1;
+      }
+
+ 
+    }
+
+    if(!key.keyDown['slide']){
+      this.el.classList.remove('slide');
+      this.slideDown = false;
     }
 
     if(!key.keyDown['left'] && !key.keyDown['right']) this.el.classList.remove('run');
@@ -113,15 +245,26 @@ class Hero {
       height: this.el.offsetHeight
     }
   }
-  updateHp(monsterDamage){
+
+  minusHp(monsterDamage){
     this.hpValue = Math.max(0,this.hpValue - monsterDamage);
-    this.hpProgress =  this.hpValue / this.defaultHpValue * 100;
-    const heroHpBox = document.querySelector('.state_box .hp span');
-    heroHpBox.style.width = this.hpProgress + '%';
+   
     this.crash();
     if(this.hpValue === 0){
       this.dead();
     }
+    this.renderHp();
+  }
+
+  plusHp(hp){
+    this.hpValue = hp;
+    this.renderHp();
+  }
+
+  renderHp(){
+    this.hpProgress =  this.hpValue / this.defaultHpValue * 100;
+    const heroHpBox = document.querySelector('.state_box .hp span');
+    heroHpBox.style.width = this.hpProgress + '%';
   }
 
   crash(){
@@ -135,9 +278,32 @@ class Hero {
   hitDamage(){
    this.realDamage = this.attackDamage - Math.round(Math.random() * this.attackDamage * 0.1);
   }
-  heroUpgrade(){
+  heroUpgrade(upDamage){
+    let damage = upDamage ?? 5000;
     this.speed += 1.3;
-    this.attackDamage += 15000;
+    this.attackDamage += damage;
+  }
+  updateExp(exp){
+    this.exp += exp;
+    this.expProgress = this.exp / this.maxExp * 100;
+    document.querySelector('.hero_state .exp span').style.width = this.expProgress + '%';
+    if(this.exp >= this.maxExp){
+      this.levelUp();
+    }
+  }
+
+  levelUp(){
+    this.level += 1;
+    this.exp = 0;
+    this.maxExp = this.maxExp + this.level * 1000;
+    document.querySelector('.level_box strong').innerText = this.level;
+    const levelGuide = document.querySelector('.hero_box .level_up');
+    levelGuide.classList.add('active');
+
+    setTimeout(()=> levelGuide.classList.remove('active'), 1000);
+    this.updateExp(this.exp);
+    this.heroUpgrade();
+    this.plusHp(this.defaultHpValue);
   }
 }
 
@@ -246,6 +412,7 @@ class Monster{
     this.speed = property.speed;
     this.crashDamage = property.crashDamage;
     this.score = property.score;
+    this.exp = property.exp
 
     this.init();
   }
@@ -282,6 +449,7 @@ class Monster{
     setTimeout(()=> this.el.remove, 200);
     allMonsterComProp.arr.splice(index, 1);
     this.setScore();
+    this.setExp();
   }
   moveMonster(){
     if(this.moveX + this.positionX + this.el.offsetWidth + hero.position().left - hero.moveX <= 0){
@@ -298,11 +466,14 @@ class Monster{
     let rightDiff = 30;
     let leftDiff = 90;
     if(hero.position().right - rightDiff > this.position().left & hero.position().left - leftDiff < this.position().right){
-      hero.updateHp(this.crashDamage);
+      hero.minusHp(this.crashDamage);
     }
   }
   setScore(){
     stageInfo.totalScore += this.score;
     document.querySelector('.score_box').innerText = stageInfo.totalScore;
+  }
+  setExp(){
+    hero.updateExp(this.exp);
   }
 }
